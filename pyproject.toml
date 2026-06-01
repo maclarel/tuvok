@@ -36,7 +36,7 @@ garak = "garak.cli:main"
 
 [dependency-groups]
 dev = [
-    "pytest==8.3.2",
+    "pytest==9.0.3",
     "respx==0.23.1",
 ]
 
