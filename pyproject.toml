@@ -1,5 +1,5 @@
 [project]
-name = "garak"
+name = "tuvok"
 version = "0.1.0"
 description = "Public-repo secret leak detector for GitHub org members"
 readme = "README.md"
@@ -27,12 +27,12 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/maclarel/garak"
-Source = "https://github.com/maclarel/garak"
-Issues = "https://github.com/maclarel/garak/issues"
+Homepage = "https://github.com/maclarel/tuvok"
+Source = "https://github.com/maclarel/tuvok"
+Issues = "https://github.com/maclarel/tuvok/issues"
 
 [project.scripts]
-garak = "garak.cli:main"
+tuvok = "tuvok.cli:main"
 
 [dependency-groups]
 dev = [

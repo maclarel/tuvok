@@ -6,7 +6,7 @@ import logging
 from collections.abc import Iterable
 from pathlib import Path
 
-from garak.classifier import (
+from tuvok.classifier import (
     ClassifiedGist,
     ClassifiedRepo,
     Reason,
@@ -14,10 +14,10 @@ from garak.classifier import (
     classify_with_readme,
     classify_without_readme,
 )
-from garak.config import Config
-from garak.github import GitHubClient, Repo
-from garak.reporting import RunReport, now_utc
-from garak.trufflehog import DEFAULT_TIMEOUT_S, scan_gist, scan_repo
+from tuvok.config import Config
+from tuvok.github import GitHubClient, Repo
+from tuvok.reporting import RunReport, now_utc
+from tuvok.trufflehog import DEFAULT_TIMEOUT_S, scan_gist, scan_repo
 
 log = logging.getLogger(__name__)
 

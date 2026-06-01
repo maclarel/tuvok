@@ -17,7 +17,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 
-from garak.github import Gist, Repo
+from tuvok.github import Gist, Repo
 
 
 class Reason(str, Enum):

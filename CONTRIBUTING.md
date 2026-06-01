@@ -28,7 +28,7 @@ This isn't a filter — AI-assisted contributions are absolutely welcome. The di
 ## Quality bar
 
 - **Tests required for new behavior.** `uv run pytest` must pass before requesting review.
-- **Deterministic only.** Garak is deliberately free of runtime LLM calls. Don't introduce them.
+- **Deterministic only.** Tuvok is deliberately free of runtime LLM calls. Don't introduce them.
 - **Minimal dependencies.** New top-level deps need a justification in the PR; pin exact versions.
 - **One logical change per PR.** Don't bundle unrelated fixes.
 - **Match the existing code style.** Type hints on public functions, dataclasses for structured records, no unnecessary abstraction.
