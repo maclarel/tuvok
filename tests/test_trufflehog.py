@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 
-from garak.trufflehog import _parse_line, _redact
+from tuvok.trufflehog import _parse_line, _redact
 
 
 def test_redact_short():

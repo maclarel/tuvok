@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from garak.classifier import ClassifiedGist, ClassifiedRepo, Reason
-from garak.github import Gist, Repo
-from garak.reporting import RunReport, render, report_filename
-from garak.trufflehog import ScanResult, Secret
+from tuvok.classifier import ClassifiedGist, ClassifiedRepo, Reason
+from tuvok.github import Gist, Repo
+from tuvok.reporting import RunReport, render, report_filename
+from tuvok.trufflehog import ScanResult, Secret
 
 
 def _repo(name="thing", owner="someone") -> Repo:

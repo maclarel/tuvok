@@ -7,8 +7,8 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
-from garak.classifier import ClassifiedGist, ClassifiedRepo, Reason
-from garak.trufflehog import ScanResult
+from tuvok.classifier import ClassifiedGist, ClassifiedRepo, Reason
+from tuvok.trufflehog import ScanResult
 
 log = logging.getLogger(__name__)
 
@@ -186,7 +186,7 @@ def render(report: RunReport) -> str:
     gists_clean = [c for c in report.flagged_gists if c not in gists_with]
 
     lines: list[str] = []
-    lines.append("# Garak Daily Report")
+    lines.append("# Tuvok Daily Report")
     lines.append("")
     lines.append(f"- **Run:** {ts}")
     lines.append(f"- **Org:** {report.org}")

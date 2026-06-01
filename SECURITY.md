@@ -15,7 +15,7 @@ Include in your report:
 ## Scope
 
 In scope:
-- Secrets leakage through garak's outputs (e.g. redaction bypass in the markdown report)
+- Secrets leakage through tuvok's outputs (e.g. redaction bypass in the markdown report)
 - Command, argv, or environment injection via fields returned by the GitHub API
 - Path traversal or file writes outside the configured output directory
 - Token exposure (process arguments, logs, error messages, generated reports)
@@ -27,4 +27,4 @@ Out of scope (report upstream instead):
 
 ## Response
 
-Maintainers will acknowledge a valid report within a reasonable window and work with you on a fix and coordinated disclosure. Garak is a community project — please be patient on response times, and we will be in turn.
+Maintainers will acknowledge a valid report within a reasonable window and work with you on a fix and coordinated disclosure. Tuvok is a community project — please be patient on response times, and we will be in turn.

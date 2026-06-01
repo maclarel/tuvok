@@ -1,4 +1,4 @@
-# Garak
+# Tuvok
 
 Scans public repositories and gists owned by members of a GitHub organization for keyword matches against the org's brand/private-repo names, then runs trufflehog against the flagged set to surface leaked secrets. Output is a markdown report per run. Be mindful of API rate limiting for larger organizations.
 
@@ -16,10 +16,10 @@ Copy `.env.example` to `.env` and fill in:
 
 | Variable | Purpose |
 | --- | --- |
-| `GARAK_TOKEN` | The PAT described above |
-| `GARAK_ORG` | GitHub org name (e.g. `dundermifflin`) |
-| `GARAK_KEYWORDS` | Comma-separated, case-insensitive substrings checked against repo name/description/topics/README and gist description/filenames |
-| `GARAK_MAX_PAGES` | Optional. Hard cap on paginated GitHub API calls per endpoint (default `50`, i.e. up to 5,000 items per listing). Raise only if an org outgrows the default. |
+| `TUVOK_TOKEN` | The PAT described above |
+| `TUVOK_ORG` | GitHub org name (e.g. `dundermifflin`) |
+| `TUVOK_KEYWORDS` | Comma-separated, case-insensitive substrings checked against repo name/description/topics/README and gist description/filenames |
+| `TUVOK_MAX_PAGES` | Optional. Hard cap on paginated GitHub API calls per endpoint (default `50`, i.e. up to 5,000 items per listing). Raise only if an org outgrows the default. |
 
 ## Install
 
@@ -31,19 +31,19 @@ uv sync
 
 ```sh
 # Full pipeline: enumerate -> classify -> trufflehog -> report
-uv run garak scan
+uv run tuvok scan
 
 # Scan a curated user list (skip org-member enumeration)
-uv run garak scan --users-file path/to/users.txt
+uv run tuvok scan --users-file path/to/users.txt
 
 # Classification only — skip trufflehog
-uv run garak scan --no-trufflehog
+uv run tuvok scan --no-trufflehog
 
 # Smoke test against the first N members
-uv run garak scan --user-limit 5
+uv run tuvok scan --user-limit 5
 
 # Dump the enumerated user/basename lists to disk for inspection or reuse
-uv run garak scan --users-out reports/users.txt --basenames-out reports/basenames.txt
+uv run tuvok scan --users-out reports/users.txt --basenames-out reports/basenames.txt
 ```
 
 Other flags: `--output-dir`, `--trufflehog-timeout`, `--env`, `-v/--verbose`.

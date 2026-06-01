@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from garak.classifier import (
+from tuvok.classifier import (
     Reason,
     classify_gist,
     classify_with_readme,
     classify_without_readme,
 )
-from garak.github import Gist, Repo
+from tuvok.github import Gist, Repo
 
 KEYWORDS = ("dundermifflin", "paper")
 

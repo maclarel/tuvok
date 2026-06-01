@@ -59,7 +59,7 @@ class GitHubClient:
                 "Authorization": f"Bearer {token}",
                 "Accept": "application/vnd.github+json",
                 "X-GitHub-Api-Version": "2022-11-28",
-                "User-Agent": "Garak/0.1.0",
+                "User-Agent": "Tuvok/0.1.0",
             },
         )
         self._max_pages = max_pages
@@ -72,7 +72,7 @@ class GitHubClient:
 
     def _check_rate_limit(self, response: httpx.Response) -> None:
         if response.status_code == 401:
-            log.error("GitHub auth failed (401). Refresh GARAK_TOKEN.")
+            log.error("GitHub auth failed (401). Refresh TUVOK_TOKEN.")
             sys.exit(2)
         if response.status_code == 403 and response.headers.get(
             "x-ratelimit-remaining"
@@ -88,7 +88,7 @@ class GitHubClient:
         """Walk `path` page-by-page, returning the concatenated list.
 
         Hard-caps at `self._max_pages` requests (default 50, override via
-        GARAK_MAX_PAGES) so a misbehaving API can't cause an unbounded
+        TUVOK_MAX_PAGES) so a misbehaving API can't cause an unbounded
         request loop. Logs a warning if the cap is hit so partial-result
         truncation is visible.
         """
@@ -110,7 +110,7 @@ class GitHubClient:
                 return results
         log.warning(
             "Pagination cap (%d pages) hit on %s — results may be truncated. "
-            "Increase GARAK_MAX_PAGES if this is expected.",
+            "Increase TUVOK_MAX_PAGES if this is expected.",
             self._max_pages, path,
         )
         return results

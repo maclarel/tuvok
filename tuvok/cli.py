@@ -1,4 +1,4 @@
-"""garak CLI.
+"""tuvok CLI.
 
 Subcommands:
   scan  — full pipeline (enumerate -> classify -> trufflehog -> report)
@@ -11,17 +11,17 @@ import logging
 import sys
 from pathlib import Path
 
-from garak.config import Config
-from garak.pipeline import run
-from garak.reporting import save
-from garak.trufflehog import DEFAULT_TIMEOUT_S
+from tuvok.config import Config
+from tuvok.pipeline import run
+from tuvok.reporting import save
+from tuvok.trufflehog import DEFAULT_TIMEOUT_S
 
-logger = logging.getLogger("garak")
+logger = logging.getLogger("tuvok")
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="garak",
+        prog="tuvok",
         description=(
             "Scan public repos and gists owned by GitHub org members for "
             "leaked secrets in keyword-matching content."
@@ -83,7 +83,7 @@ def _run_scan(args: argparse.Namespace) -> int:
     path = save(report, Path(args.output_dir))
 
     print(
-        f"\nGarak run complete: {len(report.users_scanned)} user(s) scanned | "
+        f"\nTuvok run complete: {len(report.users_scanned)} user(s) scanned | "
         f"{len(report.flagged_repos)} repo(s) flagged ({report.repos_with_secrets} w/ secrets) | "
         f"{len(report.flagged_gists)} gist(s) flagged ({report.gists_with_secrets} w/ secrets) | "
         f"{report.total_secrets} total finding(s). "
