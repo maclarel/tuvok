@@ -6,6 +6,7 @@ import logging
 from collections.abc import Iterable
 from pathlib import Path
 
+from tuvok.allowlist import Allowlist, empty as empty_allowlist
 from tuvok.classifier import (
     ClassifiedGist,
     ClassifiedRepo,
@@ -51,14 +52,23 @@ def run(
     run_trufflehog: bool = True,
     users_out: Path | None = None,
     basenames_out: Path | None = None,
+    allowlist: Allowlist | None = None,
 ) -> RunReport:
     started = now_utc()
+    allowlist = allowlist if allowlist is not None else empty_allowlist()
     report = RunReport(
         started_at=started,
         org=config.org,
         keywords=list(config.keywords),
         users_scanned=[],
+        allowlist_source=str(allowlist.source) if allowlist.source else None,
+        allowlist_entries=allowlist.entry_count,
     )
+    if allowlist:
+        log.info(
+            "Allowlist loaded from %s: %d repo(s), %d gist(s)",
+            allowlist.source, len(allowlist.repos), len(allowlist.gists),
+        )
 
     with GitHubClient(config.github_token, max_pages=config.max_pages) as gh:
         if users_file is not None:
@@ -91,11 +101,12 @@ def run(
             len(users), len(private_basenames), list(config.keywords),
         )
 
-        flagged_repos, flagged_gists = _enumerate_and_classify(
-            gh, users, config.keywords, private_basenames
+        flagged_repos, flagged_gists, skipped = _enumerate_and_classify(
+            gh, users, config.keywords, private_basenames, allowlist,
         )
         report.flagged_repos = flagged_repos
         report.flagged_gists = flagged_gists
+        report.allowlist_skipped = skipped
 
     log.info(
         "Classifier flagged %d repo(s) and %d gist(s)",
@@ -125,15 +136,20 @@ def _enumerate_and_classify(
     users: Iterable[str],
     keywords: tuple[str, ...],
     private_basenames: set[str],
-) -> tuple[list[ClassifiedRepo], list[ClassifiedGist]]:
+    allowlist: Allowlist,
+) -> tuple[list[ClassifiedRepo], list[ClassifiedGist], int]:
     flagged_repos: list[ClassifiedRepo] = []
     flagged_gists: list[ClassifiedGist] = []
+    skipped = 0
     for login in users:
-        flagged_repos.extend(
-            _classify_user_repos(gh, login, keywords, private_basenames)
+        repos, repo_skipped = _classify_user_repos(
+            gh, login, keywords, private_basenames, allowlist,
         )
-        flagged_gists.extend(_classify_user_gists(gh, login, keywords))
-    return flagged_repos, flagged_gists
+        gists, gist_skipped = _classify_user_gists(gh, login, keywords, allowlist)
+        flagged_repos.extend(repos)
+        flagged_gists.extend(gists)
+        skipped += repo_skipped + gist_skipped
+    return flagged_repos, flagged_gists, skipped
 
 
 def _classify_user_repos(
@@ -141,19 +157,25 @@ def _classify_user_repos(
     login: str,
     keywords: tuple[str, ...],
     private_basenames: set[str],
-) -> list[ClassifiedRepo]:
+    allowlist: Allowlist,
+) -> tuple[list[ClassifiedRepo], int]:
     try:
         repos = gh.list_public_repos(login)
     except Exception as exc:
         log.warning("Listing repos for %s failed: %s", login, exc)
-        return []
+        return [], 0
     log.debug("%s has %d public repo(s)", login, len(repos))
     flagged: list[ClassifiedRepo] = []
+    skipped = 0
     for repo in repos:
+        if allowlist.contains_repo(repo.full_name):
+            log.debug("allowlist: skipping repo %s", repo.full_name)
+            skipped += 1
+            continue
         cr = _classify_one_repo(gh, repo, keywords, private_basenames)
         if cr is not None and cr.flagged:
             flagged.append(cr)
-    return flagged
+    return flagged, skipped
 
 
 def _classify_one_repo(
@@ -183,16 +205,22 @@ def _classify_user_gists(
     gh: GitHubClient,
     login: str,
     keywords: tuple[str, ...],
-) -> list[ClassifiedGist]:
+    allowlist: Allowlist,
+) -> tuple[list[ClassifiedGist], int]:
     try:
         gists = gh.list_user_gists(login)
     except Exception as exc:
         log.warning("Listing gists for %s failed: %s", login, exc)
-        return []
+        return [], 0
     log.debug("%s has %d public gist(s)", login, len(gists))
     flagged: list[ClassifiedGist] = []
+    skipped = 0
     for gist in gists:
+        if allowlist.contains_gist(gist.id):
+            log.debug("allowlist: skipping gist %s", gist.id)
+            skipped += 1
+            continue
         cg = classify_gist(gist, keywords)
         if cg.flagged:
             flagged.append(cg)
-    return flagged
+    return flagged, skipped
