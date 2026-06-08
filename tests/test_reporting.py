@@ -92,6 +92,31 @@ def test_render_summary_counts():
     assert "No secrets detected" in md
 
 
+def test_render_allowlist_header_present():
+    report = RunReport(
+        started_at=_ts(),
+        org="dundermifflin",
+        keywords=["dundermifflin"],
+        users_scanned=["alice"],
+        allowlist_source="allowlist",
+        allowlist_entries=3,
+        allowlist_skipped=2,
+    )
+    md = render(report)
+    assert "Allowlist:** `allowlist` (3 entries, 2 item(s) skipped)" in md
+
+
+def test_render_allowlist_header_absent_when_not_used():
+    report = RunReport(
+        started_at=_ts(),
+        org="dundermifflin",
+        keywords=["dundermifflin"],
+        users_scanned=["alice"],
+    )
+    md = render(report)
+    assert "Allowlist" not in md
+
+
 def test_render_empty_run():
     report = RunReport(
         started_at=_ts(),
