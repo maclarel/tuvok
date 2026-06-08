@@ -11,12 +11,15 @@ import logging
 import sys
 from pathlib import Path
 
+from tuvok.allowlist import Allowlist, empty as empty_allowlist, load as load_allowlist
 from tuvok.config import Config
 from tuvok.pipeline import run
 from tuvok.reporting import save
 from tuvok.trufflehog import DEFAULT_TIMEOUT_S
 
 logger = logging.getLogger("tuvok")
+
+DEFAULT_ALLOWLIST_PATH = Path("allowlist")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -62,7 +65,36 @@ def build_parser() -> argparse.ArgumentParser:
         "--no-trufflehog", action="store_true",
         help="Skip trufflehog scans; report just lists flagged targets.",
     )
+    allow_group = scan.add_mutually_exclusive_group()
+    allow_group.add_argument(
+        "--allowlist", type=Path, default=None,
+        help=f"Path to an allowlist file (default: ./{DEFAULT_ALLOWLIST_PATH} "
+             "if present). Format: 'repo: owner/name' or 'gist: <id>' per "
+             "line; '#' for comments. Allowlisted items are excluded from "
+             "classification and trufflehog.",
+    )
+    allow_group.add_argument(
+        "--no-allowlist", action="store_true",
+        help="Disable allowlist loading even if the default file is present.",
+    )
     return parser
+
+
+def _resolve_allowlist(args: argparse.Namespace) -> Allowlist:
+    if args.no_allowlist:
+        logger.debug("Allowlist disabled by --no-allowlist")
+        return empty_allowlist()
+    if args.allowlist is not None:
+        if not args.allowlist.is_file():
+            raise FileNotFoundError(
+                f"Allowlist file not found: {args.allowlist}"
+            )
+        return load_allowlist(args.allowlist)
+    if DEFAULT_ALLOWLIST_PATH.is_file():
+        logger.debug("Loading default allowlist at %s", DEFAULT_ALLOWLIST_PATH)
+        return load_allowlist(DEFAULT_ALLOWLIST_PATH)
+    logger.debug("No allowlist file at default path %s", DEFAULT_ALLOWLIST_PATH)
+    return empty_allowlist()
 
 
 def _run_scan(args: argparse.Namespace) -> int:
@@ -70,6 +102,7 @@ def _run_scan(args: argparse.Namespace) -> int:
     logger.info("Org: %s | Keywords: %s", config.org, ", ".join(config.keywords))
     if args.users_file:
         logger.info("User source: %s", args.users_file)
+    allowlist = _resolve_allowlist(args)
 
     report = run(
         config,
@@ -79,6 +112,7 @@ def _run_scan(args: argparse.Namespace) -> int:
         run_trufflehog=not args.no_trufflehog,
         users_out=args.users_out,
         basenames_out=args.basenames_out,
+        allowlist=allowlist,
     )
     path = save(report, Path(args.output_dir))
 
