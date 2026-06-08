@@ -25,6 +25,9 @@ class RunReport:
     flagged_gists: list[ClassifiedGist] = field(default_factory=list)
     repo_scans: dict[str, ScanResult] = field(default_factory=dict)
     gist_scans: dict[str, ScanResult] = field(default_factory=dict)
+    allowlist_source: str | None = None
+    allowlist_entries: int = 0
+    allowlist_skipped: int = 0
 
     @property
     def repos_with_secrets(self) -> int:
@@ -192,6 +195,12 @@ def render(report: RunReport) -> str:
     lines.append(f"- **Org:** {report.org}")
     lines.append(f"- **Keywords:** {', '.join(report.keywords)}")
     lines.append(f"- **Users scanned:** {len(report.users_scanned)}")
+    if report.allowlist_source:
+        lines.append(
+            f"- **Allowlist:** `{_md_inline(report.allowlist_source)}` "
+            f"({report.allowlist_entries} entries, "
+            f"{report.allowlist_skipped} item(s) skipped)"
+        )
     lines.append(f"- **Repos flagged:** {len(report.flagged_repos)}")
     lines.append(f"- **Gists flagged:** {len(report.flagged_gists)}")
     lines.append(f"- **Flagged repos with secrets:** {report.repos_with_secrets}")
